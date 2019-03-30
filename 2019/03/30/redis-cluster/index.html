@@ -87,7 +87,7 @@
 <meta property="og:site_name" content="wuare">
 <meta property="og:description" content="阅读Redis集群官方文档https://redis.io/topics/cluster-tutorial，记下笔记。">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2019-03-30T10:13:45.514Z">
+<meta property="og:updated_time" content="2019-03-30T10:18:31.037Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Redis集群">
 <meta name="twitter:description" content="阅读Redis集群官方文档https://redis.io/topics/cluster-tutorial，记下笔记。">
@@ -326,10 +326,18 @@
 <ul>
 <li>节点A包含从0到5500的哈希槽</li>
 <li>节点B包含从5501到11000的哈希槽</li>
-<li>节点C包含从11001到16383的哈希槽<br>这种做法可以很容易增加或删除一个节点。比如想增加一个节点D，只需要从A，B，C节点转移一部分哈希槽到D。同样的如果要移除节点A，可以将A节点的哈希槽移到A，B，C。当A节点的哈希槽移完以后，摘除A节点即可。<br>由于把哈希槽从一个节点移到另一个节点不需要停止其他操作，所以添加或删除节点不需要停止集群。<h1 id="Redis集群主从模式"><a href="#Redis集群主从模式" class="headerlink" title="Redis集群主从模式"></a>Redis集群主从模式</h1>为了保证当一个master节点故障时仍然可用，集群使用主从模式，即每个哈希槽有1个或N个备份（N-1个slave节点）。<br>例如：一个集群由ABC3个节点组成，这3个节点为master节点，然后为这个3个节点分别设置一个slave节点A1，B1，C1。当B节点故障时，集群把B1基点提升为master节点，整个集群可以正常操作。但是当B节点和B1节点都故障，则集群不能正常操作。<h1 id="Redis集群一致性"><a href="#Redis集群一致性" class="headerlink" title="Redis集群一致性"></a>Redis集群一致性</h1>Redis集群不能保证强一致性。这是由于主从模式下备份数据是异步的。具体情形如下：</li>
+<li>节点C包含从11001到16383的哈希槽</li>
+</ul>
+<p>这种做法可以很容易增加或删除一个节点。比如想增加一个节点D，只需要从A，B，C节点转移一部分哈希槽到D。同样的如果要移除节点A，可以将A节点的哈希槽移到A，B，C。当A节点的哈希槽移完以后，摘除A节点即可。<br>由于把哈希槽从一个节点移到另一个节点不需要停止其他操作，所以添加或删除节点不需要停止集群。</p>
+<h1 id="Redis集群主从模式"><a href="#Redis集群主从模式" class="headerlink" title="Redis集群主从模式"></a>Redis集群主从模式</h1><p>为了保证当一个master节点故障时仍然可用，集群使用主从模式，即每个哈希槽有1个或N个备份（N-1个slave节点）。<br>例如：一个集群由ABC3个节点组成，这3个节点为master节点，然后为这个3个节点分别设置一个slave节点A1，B1，C1。当B节点故障时，集群把B1基点提升为master节点，整个集群可以正常操作。但是当B节点和B1节点都故障，则集群不能正常操作。</p>
+<h1 id="Redis集群一致性"><a href="#Redis集群一致性" class="headerlink" title="Redis集群一致性"></a>Redis集群一致性</h1><p>Redis集群不能保证强一致性。这是由于主从模式下备份数据是异步的。具体情形如下：</p>
+<ul>
 <li>客户端写入数据到master B</li>
 <li>master B节点向客户端回复OK</li>
-<li>master B开始写入slave节点B1，B2，B3<br>所以在客户端向B写入数据之后，B向slave节点写入数据之前，B节点发生了故障，则数据将会丢失。<br>如果绝对需要同步，集群也支持同步写入，该操作通过<code>wait</code>命令实现。即使同步写入，集群也不能实现强一致性。<h1 id="Redis集群配置参数"><a href="#Redis集群配置参数" class="headerlink" title="Redis集群配置参数"></a>Redis集群配置参数</h1></li>
+<li>master B开始写入slave节点B1，B2，B3</li>
+</ul>
+<p>所以在客户端向B写入数据之后，B向slave节点写入数据之前，B节点发生了故障，则数据将会丢失。<br>如果绝对需要同步，集群也支持同步写入，该操作通过<code>wait</code>命令实现。即使同步写入，集群也不能实现强一致性。</p>
+<h1 id="Redis集群配置参数"><a href="#Redis集群配置参数" class="headerlink" title="Redis集群配置参数"></a>Redis集群配置参数</h1><ul>
 <li><strong>cluster-enabled</strong>&lt;yes/no&gt;：如果启用集群，则必须设置为yes，否则以单独节点运行。</li>
 <li><strong>cluster-config-file</strong>&lt;filename&gt;：该配置文件不允许用户编辑，Redis集群每次更改会自动保存集群状态，以便在启动时重新读取。文件列出了集群中其他节点、状态等。</li>
 <li><strong>cluster-node-timeout</strong>&lt;millisecond&gt;：集群节点不可用最长时间，如果超过该时间，则认为该节点故障。</li>
@@ -373,10 +381,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2019/03/30/redis-cluster-1/" rel="prev" title="redis-cluster">
-                redis-cluster <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -453,7 +457,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-count">3</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
