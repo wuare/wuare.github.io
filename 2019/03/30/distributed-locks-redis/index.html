@@ -87,7 +87,7 @@
 <meta property="og:site_name" content="wuare">
 <meta property="og:description" content="阅读了Redis官网分布式锁的文档https://redis.io/topics/distlock，这里做一下笔记">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2019-03-30T04:28:57.582Z">
+<meta property="og:updated_time" content="2019-03-30T04:39:09.827Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="redis分布式锁">
 <meta name="twitter:description" content="阅读了Redis官网分布式锁的文档https://redis.io/topics/distlock，这里做一下笔记">
@@ -321,12 +321,18 @@
 
       
         <p>阅读了Redis官网分布式锁的文档<a href="https://redis.io/topics/distlock" target="_blank" rel="noopener">https://redis.io/topics/distlock</a>，这里做一下笔记<br><a id="more"></a></p>
-<h1 id="安全性与活跃性的保证"><a href="#安全性与活跃性的保证" class="headerlink" title="安全性与活跃性的保证"></a>安全性与活跃性的保证</h1><p>若要有效地使用分布式锁，最少要保证以下几点：<br>1.互斥。在任意时刻，只能由一个客户端持有锁。<br>2.无死锁。即使锁定资源的客户端崩溃，其它客户端也可以获得锁。<br>3.容错。只要大多数Redis节点存活，客户端就可以获取和释放锁。</p>
-<h1 id="基于故障切换实现的不足"><a href="#基于故障切换实现的不足" class="headerlink" title="基于故障切换实现的不足"></a>基于故障切换实现的不足</h1><p>使用Redis锁住一个资源最简单的方法是在一个示例中创建一个key，并且使用Redis的expires特性指定key的存活时间，当客户端释放资源是，删除这个key即可。<br>表面上基于以上的分布式锁可以正常工作，但是存在问题：以上Redis是单个实例，如果这个Redis实例宕机了怎么办？我们可能会想，使用Redis的主从模式，加个Slave节点，但是主从模式并不能实现锁的互斥，因为Redis备份数据是异步进行的。<br>想象一下这个过程：<br>1.客户端A在master节点获取锁。<br>2.在master将key写入slave之前，master节点崩溃。<br>3.slave升级为master。<br>4.客户端B在A持有锁的情况下获得了锁。</p>
-<h1 id="在单个Redis实例中的正确实现方式"><a href="#在单个Redis实例中的正确实现方式" class="headerlink" title="在单个Redis实例中的正确实现方式"></a>在单个Redis实例中的正确实现方式</h1><p>获取锁使用以下Redis命令：</p>
-<blockquote>
-<p>SET resource_name my_random_value NX PX 30000<br>这个命令在key不存在的情况下才会设置成功，这个特性是<code>NX</code>参数起作用，<code>PX</code>参数设置key的过期时间。key的值必须在所有客户端中保证唯一性。这种做法是为了以一种安全的方式释放锁：要想删除这个key，必须保证这个key存在且它的值是某个客户端设置的正确的值，才能由该客户端删除key。下面是Lua脚本实现：<br><figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> redis.call(<span class="string">"get"</span>,KEYS[<span class="number">1</span>]) == ARGV[<span class="number">1</span>] <span class="keyword">then</span></span><br><span class="line">    <span class="keyword">return</span> redis.call(<span class="string">"del"</span>,KEYS[<span class="number">1</span>])</span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure></p>
-</blockquote>
+<h1 id="安全性与活跃性的保证"><a href="#安全性与活跃性的保证" class="headerlink" title="安全性与活跃性的保证"></a>安全性与活跃性的保证</h1><p>若要有效地使用分布式锁，最少要保证以下几点：</p>
+<ol>
+<li>互斥。在任意时刻，只能由一个客户端持有锁。</li>
+<li>无死锁。即使锁定资源的客户端崩溃，其它客户端也可以获得锁。</li>
+<li>容错。只要大多数Redis节点存活，客户端就可以获取和释放锁。<h1 id="基于故障切换实现的不足"><a href="#基于故障切换实现的不足" class="headerlink" title="基于故障切换实现的不足"></a>基于故障切换实现的不足</h1>使用Redis锁住一个资源最简单的方法是在一个示例中创建一个key，并且使用Redis的expires特性指定key的存活时间，当客户端释放资源是，删除这个key即可。<br>表面上基于以上的分布式锁可以正常工作，但是存在问题：以上Redis是单个实例，如果这个Redis实例宕机了怎么办？我们可能会想，使用Redis的主从模式，加个Slave节点，但是主从模式并不能实现锁的互斥，因为Redis备份数据是异步进行的。<br>想象一下这个过程：</li>
+<li>客户端A在master节点获取锁。</li>
+<li>在master将key写入slave之前，master节点崩溃。</li>
+<li>slave升级为master。</li>
+<li>客户端B在A持有锁的情况下获得了锁。<h1 id="在单个Redis实例中的正确实现方式"><a href="#在单个Redis实例中的正确实现方式" class="headerlink" title="在单个Redis实例中的正确实现方式"></a>在单个Redis实例中的正确实现方式</h1>获取锁使用以下Redis命令：<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SET resource_name my_random_value NX PX <span class="number">30000</span></span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>这个命令在key不存在的情况下才会设置成功，这个特性是<code>NX</code>参数起作用，<code>PX</code>参数设置key的过期时间。key的值必须在所有客户端中保证唯一性。这种做法是为了以一种安全的方式释放锁：要想删除这个key，必须保证这个key存在且它的值是某个客户端设置的正确的值，才能由该客户端删除key。下面是Lua脚本实现：<br><figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> redis.call(<span class="string">"get"</span>,KEYS[<span class="number">1</span>]) == ARGV[<span class="number">1</span>] <span class="keyword">then</span></span><br><span class="line">    <span class="keyword">return</span> redis.call(<span class="string">"del"</span>,KEYS[<span class="number">1</span>])</span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure></p>
 <p>这种做法避免了一个客户端删除另一个客户端创建的key。</p>
 
       
