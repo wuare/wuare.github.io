@@ -87,7 +87,7 @@
 <meta property="og:site_name" content="wuare">
 <meta property="og:description" content="阅读Redis集群官方文档https://redis.io/topics/cluster-tutorial，记下笔记。">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2019-03-30T10:55:13.354Z">
+<meta property="og:updated_time" content="2019-03-30T12:14:10.811Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Redis集群">
 <meta name="twitter:description" content="阅读Redis集群官方文档https://redis.io/topics/cluster-tutorial，记下笔记。">
@@ -345,6 +345,16 @@
 <li><strong>cluster-migration-barrier</strong>&lt;count&gt;：主节点保持连接从节点的最小数量。</li>
 <li><strong>cluster-require-full-coverage </strong>&lt;yes/no&gt;：默认情况为yes，当一定百分比的key没有被任一节点覆盖，则集群不再接受写入。</li>
 </ul>
+<h1 id="集群的创建和使用"><a href="#集群的创建和使用" class="headerlink" title="集群的创建和使用"></a>集群的创建和使用</h1><p>一个最小的集群至少3个主节点。推荐启动3个主节点3个从节点6个实例。<br>具体操作步骤：新建一个文件夹，在文件夹中创建以redis端口为名称的文件夹。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mkdir cluster-test</span><br><span class="line"><span class="built_in">cd</span> cluster-test</span><br><span class="line">mkdir 7000 7001 7002 7003 7004 7005</span><br></pre></td></tr></table></figure></p>
+<p>修改配置<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">port 7000</span><br><span class="line">cluster-enabled yes</span><br><span class="line">cluster-config-file nodes.conf</span><br><span class="line">cluster-node-timeout 5000</span><br></pre></td></tr></table></figure></p>
+<p>启动redis-server，将会看到日志，每个redis实例被分配了一个ID，该ID唯一标识一个节点。</p>
+<h2 id="创建集群"><a href="#创建集群" class="headerlink" title="创建集群"></a>创建集群</h2><p>如果使用Redis 5，使用<code>redis-cli</code>中内置的命令很容易创建、检查或者对一个集群重新分片。<br>对于Redis 3或者4，有个相似的工作<code>redis-trib.rb</code>，需要安装redis gem去运行<code>reids-trib.rb</code>    ，以下使用Redis 5演示执行命令。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis-cli --cluster create 127.0.0.1:7000 127.0.0.1:7001 127.0.0.1:7002 127.0.0.1:7003 127.0.0.1:7004 127.0.0.1:7005 --cluster-replicas 1</span><br></pre></td></tr></table></figure></p>
+<p>如果创建成功，则显示<code>[OK] All 16384 slots covered</code>。</p>
+<h2 id="集群重新分片"><a href="#集群重新分片" class="headerlink" title="集群重新分片"></a>集群重新分片</h2><p>使用命令<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis-cli --cluster reshard 127.0.0.1:7000</span><br></pre></td></tr></table></figure></p>
+<p>集群将询问迁移多少个slot，输入数量，然后继续询问实例ID，可以使用命令查询ID。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis-cli -p 7000 cluster nodes | grep myself</span><br></pre></td></tr></table></figure></p>
+<p>然后继续询问哈希槽来源的节点，输入<code>all</code>表示从其他所有主节点分配哈希槽。<br>使用命令<code>redis-cli --cluster check 127.0.0.1:7000</code>检查7000状态。</p>
+<h2 id="新增节点"><a href="#新增节点" class="headerlink" title="新增节点"></a>新增节点</h2><p>使用命令<code>redis-cli --cluster add-node 127.0.0.1:7006 127.0.0.1:7000</code>新增节点。<br>使用命令<code>redis-cli --cluster add-node 127.0.0.1:7006 127.0.0.1:7000 --cluster-slave --cluster-master-id xxx</code>新增从节点。</p>
+<h2 id="移除节点"><a href="#移除节点" class="headerlink" title="移除节点"></a>移除节点</h2><p>使用命令以下移除节点<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis-cli --cluster del-node 127.0.0.1:7000 `&lt;node-id&gt;`</span><br></pre></td></tr></table></figure></p>
 
       
     </div>
@@ -506,7 +516,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Redis集群TCP端口"><span class="nav-number">1.</span> <span class="nav-text">Redis集群TCP端口</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Redis集群数据分片"><span class="nav-number">2.</span> <span class="nav-text">Redis集群数据分片</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Redis集群主从模式"><span class="nav-number">3.</span> <span class="nav-text">Redis集群主从模式</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Redis集群一致性"><span class="nav-number">4.</span> <span class="nav-text">Redis集群一致性</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Redis集群配置参数"><span class="nav-number">5.</span> <span class="nav-text">Redis集群配置参数</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Redis集群TCP端口"><span class="nav-number">1.</span> <span class="nav-text">Redis集群TCP端口</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Redis集群数据分片"><span class="nav-number">2.</span> <span class="nav-text">Redis集群数据分片</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Redis集群主从模式"><span class="nav-number">3.</span> <span class="nav-text">Redis集群主从模式</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Redis集群一致性"><span class="nav-number">4.</span> <span class="nav-text">Redis集群一致性</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Redis集群配置参数"><span class="nav-number">5.</span> <span class="nav-text">Redis集群配置参数</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#集群的创建和使用"><span class="nav-number">6.</span> <span class="nav-text">集群的创建和使用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#创建集群"><span class="nav-number">6.1.</span> <span class="nav-text">创建集群</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#集群重新分片"><span class="nav-number">6.2.</span> <span class="nav-text">集群重新分片</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#新增节点"><span class="nav-number">6.3.</span> <span class="nav-text">新增节点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#移除节点"><span class="nav-number">6.4.</span> <span class="nav-text">移除节点</span></a></li></ol></li></ol></div>
             
 
           </div>
