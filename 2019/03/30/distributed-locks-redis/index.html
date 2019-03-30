@@ -87,7 +87,7 @@
 <meta property="og:site_name" content="wuare">
 <meta property="og:description" content="阅读了Redis官网分布式锁的文档https://redis.io/topics/distlock，这里做一下笔记">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2019-03-30T04:40:33.374Z">
+<meta property="og:updated_time" content="2019-03-30T07:56:55.032Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="redis分布式锁">
 <meta name="twitter:description" content="阅读了Redis官网分布式锁的文档https://redis.io/topics/distlock，这里做一下笔记">
@@ -336,7 +336,14 @@
 </ol>
 <h1 id="在单个Redis实例中的正确实现方式"><a href="#在单个Redis实例中的正确实现方式" class="headerlink" title="在单个Redis实例中的正确实现方式"></a>在单个Redis实例中的正确实现方式</h1><p>获取锁使用以下Redis命令：<br><figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SET resource_name my_random_value NX PX <span class="number">30000</span></span><br></pre></td></tr></table></figure></p>
 <p>这个命令在key不存在的情况下才会设置成功，这个特性是<code>NX</code>参数起作用，<code>PX</code>参数设置key的过期时间。key的值必须在所有客户端中保证唯一性。这种做法是为了以一种安全的方式释放锁：要想删除这个key，必须保证这个key存在且它的值是某个客户端设置的正确的值，才能由该客户端删除key。下面是Lua脚本实现：<br><figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> redis.call(<span class="string">"get"</span>,KEYS[<span class="number">1</span>]) == ARGV[<span class="number">1</span>] <span class="keyword">then</span></span><br><span class="line">    <span class="keyword">return</span> redis.call(<span class="string">"del"</span>,KEYS[<span class="number">1</span>])</span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure></p>
-<p>这种做法避免了一个客户端删除另一个客户端创建的key。</p>
+<p>这种做法避免了一个客户端删除另一个客户端创建的key。<br>以上是一种获取释放锁的好方法，但这个方法前提是有一个始终可用，安全的实例。如果在分布式系统中，没有这样的前提保证下，又该如何做。</p>
+<h1 id="Redlock算法"><a href="#Redlock算法" class="headerlink" title="Redlock算法"></a>Redlock算法</h1><p>在该算法的分布式版本中，假设有5个Redis Master节点。为了获得所，客户端按一下步骤进行操作：</p>
+<ol>
+<li>获取当前时间（毫秒）</li>
+<li>按照一定顺序尝试在所有实例中通过设置相同的key和value获取锁，在每个实例中设置锁的时候，客户端设置key的超时时间要比锁释放的总时间小。例如：释放锁的时间为10秒，则在设置key时的超时时间设置为5-50毫秒。这是为了防止客户端长时间阻塞尝试与Redis节点通信，如果一个节点不可用，应该尝试与下一个节点进行通信。</li>
+<li>客户端通过从当前时间减去步骤1中记录的时间计算获取锁所用的时间。当且仅当在大多数节点（至少3个）获取到锁，并且获取锁所用的总时间小于锁的有效时间，则视为获取到了锁。</li>
+<li>如果客户端获取锁失败，则尝试在所有实例中解锁。</li>
+</ol>
 
       
     </div>
@@ -498,7 +505,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#安全性与活跃性的保证"><span class="nav-number">1.</span> <span class="nav-text">安全性与活跃性的保证</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#基于故障切换实现的不足"><span class="nav-number">2.</span> <span class="nav-text">基于故障切换实现的不足</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#在单个Redis实例中的正确实现方式"><span class="nav-number">3.</span> <span class="nav-text">在单个Redis实例中的正确实现方式</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#安全性与活跃性的保证"><span class="nav-number">1.</span> <span class="nav-text">安全性与活跃性的保证</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#基于故障切换实现的不足"><span class="nav-number">2.</span> <span class="nav-text">基于故障切换实现的不足</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#在单个Redis实例中的正确实现方式"><span class="nav-number">3.</span> <span class="nav-text">在单个Redis实例中的正确实现方式</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Redlock算法"><span class="nav-number">4.</span> <span class="nav-text">Redlock算法</span></a></li></ol></div>
             
 
           </div>
