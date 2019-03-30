@@ -87,7 +87,7 @@
 <meta property="og:site_name" content="wuare">
 <meta property="og:description" content="阅读Redis集群官方文档https://redis.io/topics/cluster-tutorial，记下笔记。">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2019-03-30T10:18:31.037Z">
+<meta property="og:updated_time" content="2019-03-30T10:55:13.354Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Redis集群">
 <meta name="twitter:description" content="阅读Redis集群官方文档https://redis.io/topics/cluster-tutorial，记下笔记。">
@@ -340,7 +340,10 @@
 <h1 id="Redis集群配置参数"><a href="#Redis集群配置参数" class="headerlink" title="Redis集群配置参数"></a>Redis集群配置参数</h1><ul>
 <li><strong>cluster-enabled</strong>&lt;yes/no&gt;：如果启用集群，则必须设置为yes，否则以单独节点运行。</li>
 <li><strong>cluster-config-file</strong>&lt;filename&gt;：该配置文件不允许用户编辑，Redis集群每次更改会自动保存集群状态，以便在启动时重新读取。文件列出了集群中其他节点、状态等。</li>
-<li><strong>cluster-node-timeout</strong>&lt;millisecond&gt;：集群节点不可用最长时间，如果超过该时间，则认为该节点故障。</li>
+<li><strong>cluster-node-timeout</strong>&lt;millisecond&gt;：集群节点不可用最大时间值，如果超过该时间，则认为该节点故障。</li>
+<li><strong>cluster-slave-validity-factor</strong>&lt;factor&gt;：如果设置为0，则slave节点不管与主节点连接和断开的时间长短始终尝试故障转移，如果该值为正值，节点超时时间乘以该系数作为断开连接最大时间。如果该节点是slave节点，如果主节点断开连接时间超过指定的值，则从节点不再故障转移。例如：节点超时时间为5秒，该值为10，如果和主节点断开时间超过50秒，则从节点不再尝试故障转移。</li>
+<li><strong>cluster-migration-barrier</strong>&lt;count&gt;：主节点保持连接从节点的最小数量。</li>
+<li><strong>cluster-require-full-coverage </strong>&lt;yes/no&gt;：默认情况为yes，当一定百分比的key没有被任一节点覆盖，则集群不再接受写入。</li>
 </ul>
 
       
