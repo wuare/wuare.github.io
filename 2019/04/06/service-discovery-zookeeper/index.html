@@ -87,7 +87,7 @@
 <meta property="og:site_name" content="wuare">
 <meta property="og:description" content="Zookeeper是一个为分布式应用提供一致性服务的组件，包括：配置信息维护、分布式同步、命名等等。">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2019-04-06T09:38:11.132Z">
+<meta property="og:updated_time" content="2019-04-06T09:40:53.565Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="zookeeper服务注册和发现">
 <meta name="twitter:description" content="Zookeeper是一个为分布式应用提供一致性服务的组件，包括：配置信息维护、分布式同步、命名等等。">
@@ -321,7 +321,7 @@
 
       
         <p>Zookeeper是一个为分布式应用提供一致性服务的组件，包括：配置信息维护、分布式同步、命名等等。<br><a id="more"></a><br>在分布式系统中，由于人工管理各个服务的复杂性，经常用Zookeeper作为服务注册发现中心。</p>
-<h1 id="注册发现原理"><a href="#注册发现原理" class="headerlink" title="注册发现原理"></a>注册发现原理</h1><p>Zookeeper提供了一个类型Unix文件系统的树形存储结构，由一个个znode节点组成，其中节点可以存储数据。利用这个特点，可以很好地进行服务注册和发现。<br>一个服务包含的信息有：IP、端口、服务名称、ID以及一些额外的数据。<br>在进行服务注册的时候，只要在一个固定的路径下，添加一个以服务名称命名的节点，在该节点下添加各个服务的ID。例如：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">	          /</span><br><span class="line">	          |</span><br><span class="line">             discovery</span><br><span class="line">         /         \</span><br><span class="line"> ServiceNameA         ServiceNameB</span><br><span class="line"> /     |    \        /     |    \</span><br><span class="line">id_1  id_2  id_3    id_1  id_2  id_3</span><br></pre></td></tr></table></figure></p>
+<h1 id="注册发现原理"><a href="#注册发现原理" class="headerlink" title="注册发现原理"></a>注册发现原理</h1><p>Zookeeper提供了一个类型Unix文件系统的树形存储结构，由一个个znode节点组成，其中节点可以存储数据。利用这个特点，可以很好地进行服务注册和发现。<br>一个服务包含的信息有：IP、端口、服务名称、ID以及一些额外的数据。<br>在进行服务注册的时候，只要在一个固定的路径下，添加一个以服务名称命名的节点，在该节点下添加各个服务的ID。例如：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">                 /</span><br><span class="line">                 |</span><br><span class="line">             discovery</span><br><span class="line">            /         \</span><br><span class="line"> ServiceNameA        ServiceNameB</span><br><span class="line"> /     |    \        /     |    \</span><br><span class="line">id_1  id_2  id_3    id_1  id_2  id_3</span><br></pre></td></tr></table></figure></p>
 <p>以上为服务信息储存的结构，由于单点服务的不可靠，我们一般都会对服务进行集群，所以以服务名称（ServieName）进行分组，服务名称下是一个个服务节点（id），该节点储存服务的信息（包括ip，端口等）。<br>在进行服务调用的时候，可以根据服务名进行查询，提供调用策略（如：随机调用一个服务，循环调用服务等），获取到相应的服务信息，然后进行调用。<br>在服务调用的时候有多种方法获取服务信息：</p>
 <ol>
 <li>在调用之前每次查询服务。</li>
