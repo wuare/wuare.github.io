@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="Java,">
+  <meta name="keywords" content="MySQL,InnoDB,">
 
 
 
@@ -79,18 +79,18 @@
 
 
 
-<meta name="description" content="Java AQS源码阅读疑问">
-<meta name="keywords" content="Java">
+<meta name="description" content="InnoDB是MySQL一个存储引擎。">
+<meta name="keywords" content="MySQL,InnoDB">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Java AQS疑问">
-<meta property="og:url" content="http://wuare.github.io/2019/04/24/java-lock/index.html">
+<meta property="og:title" content="MySQL存储引擎InnoDB相关知识">
+<meta property="og:url" content="http://wuare.github.io/2020/08/16/mysql-storage-engine-innodb/index.html">
 <meta property="og:site_name" content="wuare">
-<meta property="og:description" content="Java AQS源码阅读疑问">
+<meta property="og:description" content="InnoDB是MySQL一个存储引擎。">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2019-04-24T13:49:34.272Z">
+<meta property="og:updated_time" content="2020-08-16T11:48:33.518Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Java AQS疑问">
-<meta name="twitter:description" content="Java AQS源码阅读疑问">
+<meta name="twitter:title" content="MySQL存储引擎InnoDB相关知识">
+<meta name="twitter:description" content="InnoDB是MySQL一个存储引擎。">
 
 
 
@@ -120,13 +120,13 @@
 
 
 
-  <link rel="canonical" href="http://wuare.github.io/2019/04/24/java-lock/">
+  <link rel="canonical" href="http://wuare.github.io/2020/08/16/mysql-storage-engine-innodb/">
 
 
 
 
 
-  <title>Java AQS疑问 | wuare</title>
+  <title>MySQL存储引擎InnoDB相关知识 | wuare</title>
   
 
 
@@ -253,7 +253,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://wuare.github.io/2019/04/24/java-lock/">
+    <link itemprop="mainEntityOfPage" href="http://wuare.github.io/2020/08/16/mysql-storage-engine-innodb/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="wuare">
@@ -270,7 +270,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">Java AQS疑问</h1>
+          <h1 class="post-title" itemprop="name headline">MySQL存储引擎InnoDB相关知识</h1>
         
 
         <div class="post-meta">
@@ -282,8 +282,8 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-04-24T21:39:03+08:00">
-                2019-04-24
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-08-16T14:21:21+08:00">
+                2020-08-16
               </time>
             
 
@@ -320,10 +320,31 @@
       
 
       
-        <p>Java AQS源码阅读疑问<br><a id="more"></a><br>学习Java锁（Lock），阅读AQS源码一直有个疑问，如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">final</span> <span class="keyword">boolean</span> <span class="title">acquireQueued</span><span class="params">(<span class="keyword">final</span> Node node, <span class="keyword">int</span> arg)</span> </span>&#123;</span><br><span class="line">	<span class="keyword">boolean</span> failed = <span class="keyword">true</span>;</span><br><span class="line">	<span class="keyword">try</span> &#123;</span><br><span class="line">		<span class="keyword">boolean</span> interrupted = <span class="keyword">false</span>;</span><br><span class="line">		<span class="keyword">for</span> (;;) &#123;</span><br><span class="line">			<span class="keyword">final</span> Node p = node.predecessor();</span><br><span class="line">			<span class="keyword">if</span> (p == head &amp;&amp; tryAcquire(arg)) &#123;</span><br><span class="line">				setHead(node);</span><br><span class="line">				p.next = <span class="keyword">null</span>; <span class="comment">// help GC</span></span><br><span class="line">				failed = <span class="keyword">false</span>;</span><br><span class="line">				<span class="keyword">return</span> interrupted;</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">if</span> (shouldParkAfterFailedAcquire(p, node) &amp;&amp;</span><br><span class="line">				parkAndCheckInterrupt())</span><br><span class="line">				interrupted = <span class="keyword">true</span>;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">		<span class="keyword">if</span> (failed)</span><br><span class="line">			cancelAcquire(node);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// release方法中unparkSuccessor方法代码</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">unparkSuccessor</span><span class="params">(Node node)</span> </span>&#123;</span><br><span class="line">	<span class="keyword">int</span> ws = node.waitStatus;</span><br><span class="line">	<span class="keyword">if</span> (ws &lt; <span class="number">0</span>)</span><br><span class="line">		compareAndSetWaitStatus(node, ws, <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">	Node s = node.next;</span><br><span class="line">	<span class="keyword">if</span> (s == <span class="keyword">null</span> || s.waitStatus &gt; <span class="number">0</span>) &#123;</span><br><span class="line">		s = <span class="keyword">null</span>;</span><br><span class="line">		<span class="keyword">for</span> (Node t = tail; t != <span class="keyword">null</span> &amp;&amp; t != node; t = t.prev)</span><br><span class="line">			<span class="keyword">if</span> (t.waitStatus &lt;= <span class="number">0</span>)</span><br><span class="line">				s = t;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> (s != <span class="keyword">null</span>)</span><br><span class="line">		LockSupport.unpark(s.thread);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>如果第一个线程获得了锁，第二个线程执行以上方法添加到队列里阻塞自己，但是当第二个线程执行到<code>shouldParkAfterFailedAcquire()</code>该方法时，返回true，在执行<code>parkAndCheckInterrupt()</code>阻塞自己之前，cpu时间片切换，第一个线程执行<code>release()</code>方法，以上代码中<code>Node s = node.next</code>为第二个线程的节点，执行<code>LockSupport.unpark(s.thread)</code>操作第二个线程，然后cpu时间片再次切换，第二个线程调用<code>parkAndCheckInterrupt()</code>阻塞自己，这样第二个线程会一直阻塞下去吗？</p>
-<p>后来试了下发现，如果一个线程先调用<code>LockSupport.unpark</code>方法，然后调用<code>LockSupport.park</code>是阻塞不了的。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// main方法测试</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">	LockSupport.unpark(Thread.currentThread());</span><br><span class="line">	LockSupport.park();</span><br><span class="line">	System.out.println(<span class="number">1</span>); <span class="comment">// 不阻塞，输出1</span></span><br><span class="line">	LockSupport.park();</span><br><span class="line">	System.out.println(<span class="number">2</span>); <span class="comment">// 阻塞，不输出</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>由于水平有限，本文有错误请在<a href="https://github.com/wuare/wuare.github.io/issues" target="_blank" rel="noopener">Github Issue</a>区留言指正。</p>
+        <p>InnoDB是MySQL一个存储引擎。<br><a id="more"></a><br>InnoDB优势：</p>
+<ul>
+<li>支持事务</li>
+<li>行级锁</li>
+<li>没有表都有主键</li>
+<li>支持外键</li>
+</ul>
+<p>查看MySQL默认引擎：</p>
+<ul>
+<li>使用命令SHOW ENGINES;</li>
+<li>查询INFORMATION_SCHEMA.ENGINES表，SELECT * FROM INFORMATION_SCHEMA.ENGINES;</li>
+</ul>
+<p>创建InnoDB表<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> t1(a <span class="built_in">int</span>, b <span class="built_in">char</span>(<span class="number">20</span>), PRIMARY <span class="keyword">KEY</span>(a)) <span class="keyword">ENGINE</span>=<span class="keyword">InnoDB</span>;</span><br></pre></td></tr></table></figure></p>
+<p>如果默认存储引擎是InnoDB，则不需要ENGINE=InnoDB。</p>
+<h2 id="索引"><a href="#索引" class="headerlink" title="索引"></a>索引</h2><p>每个InnoDB表都有一个聚簇索引，通常主键即为聚簇索引。<br>如果创建表时没有定义主键，InnoDB将定位到的第一个非空的唯一索引作为聚簇索引。<br>如果表没有主键也没有合适的唯一索引，InnoDB内部会生成一个隐藏的名称为GEN_CLUST_INDEX聚簇索引，该索引包含了row ID值。<br>聚簇索引保存着行中所有的数据，普通索引值包含聚簇索引的值。</p>
+<h3 id="索引结构"><a href="#索引结构" class="headerlink" title="索引结构"></a>索引结构</h3><p>InnoDB索引使用的数据结构是B树，索引记录被存储到B树的叶子节点中，默认的索引页（节点）大小为16KB。</p>
+<h2 id="表空间"><a href="#表空间" class="headerlink" title="表空间"></a>表空间</h2><p>file-per-table表空间，该表空间包含表数据及索引，默认情况下，如果启用innodb_file_per_table参数，InnoDB创建的表将放到该表空间中，参数未启用，表将放到system表空间。<br>file-per-table表空间对应.ibd文件，名称为<code>[表名称].ibd</code>，如：test.t1，创建的ibd文件路径为mysql/data/test/t1.ibd</p>
+<p>undo表空间，该表空间包含undo日志</p>
+<h2 id="锁"><a href="#锁" class="headerlink" title="锁"></a>锁</h2><h3 id="共享锁shared-s-lock和排它-独占锁exclusive-x-lock"><a href="#共享锁shared-s-lock和排它-独占锁exclusive-x-lock" class="headerlink" title="共享锁shared(s) lock和排它/独占锁exclusive(x) lock"></a>共享锁shared(s) lock和排它/独占锁exclusive(x) lock</h3><p>InnoDB实现了标准的行级锁，其中有两种类型：共享锁shared(s) lock和排它/独占锁exclusive(x) lock<br>持有共享锁则允许读某行。<br>持有独占锁则允许更新或删除某行。<br>如果事务t1在行r上持有共享锁，事务t2对行r的请求处理如下：</p>
+<ul>
+<li>如果t2持有s锁，则可以访问。</li>
+<li>如果t2持有x锁，则不能访问。</li>
+</ul>
+<p>如果t1持有x锁，则t2不能访问行r，必须等待t1释放锁。</p>
+<h2 id="事务隔离级别"><a href="#事务隔离级别" class="headerlink" title="事务隔离级别"></a>事务隔离级别</h2><p>InnoDB提供了标准的四种隔离级别：READ_UNCOMMITED、READ_COMMITED、REPEATABLE_READ、SERIALIZABLE，默认隔离级别是REPEATABLE_READ。</p>
 
       
     </div>
@@ -341,7 +362,9 @@
       
         <div class="post-tags">
           
-            <a href="/tags/Java/" rel="tag"># Java</a>
+            <a href="/tags/MySQL/" rel="tag"># MySQL</a>
+          
+            <a href="/tags/InnoDB/" rel="tag"># InnoDB</a>
           
         </div>
       
@@ -354,8 +377,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2019/04/23/learn-shell/" rel="next" title="Shell脚本简单知识">
-                <i class="fa fa-chevron-left"></i> Shell脚本简单知识
+              <a href="/2020/07/12/compiler-lexer-re-convert-dfa/" rel="next" title="编译原理-正则表达式转换为DFA">
+                <i class="fa fa-chevron-left"></i> 编译原理-正则表达式转换为DFA
               </a>
             
           </div>
@@ -363,10 +386,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2020/07/12/compiler-lexer-re-convert-dfa/" rel="prev" title="编译原理-正则表达式转换为DFA">
-                编译原理-正则表达式转换为DFA <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -418,8 +437,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -470,6 +498,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#索引"><span class="nav-number">1.</span> <span class="nav-text">索引</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#索引结构"><span class="nav-number">1.1.</span> <span class="nav-text">索引结构</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#表空间"><span class="nav-number">2.</span> <span class="nav-text">表空间</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#锁"><span class="nav-number">3.</span> <span class="nav-text">锁</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#共享锁shared-s-lock和排它-独占锁exclusive-x-lock"><span class="nav-number">3.1.</span> <span class="nav-text">共享锁shared(s) lock和排它/独占锁exclusive(x) lock</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#事务隔离级别"><span class="nav-number">4.</span> <span class="nav-text">事务隔离级别</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
