@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="MySQL,InnoDB,">
+  <meta name="keywords" content="Hexo, NexT">
 
 
 
@@ -79,18 +79,17 @@
 
 
 
-<meta name="description" content="InnoDB是MySQL一个存储引擎。">
-<meta name="keywords" content="MySQL,InnoDB">
+<meta name="description" content="JDK性能分析工具使用命令记录，备忘。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="MySQL存储引擎InnoDB相关知识">
-<meta property="og:url" content="http://wuare.github.io/2020/08/16/mysql-storage-engine-innodb/index.html">
+<meta property="og:title" content="JDK性能分析工具">
+<meta property="og:url" content="http://wuare.github.io/2020/09/02/jdk-tools/index.html">
 <meta property="og:site_name" content="wuare">
-<meta property="og:description" content="InnoDB是MySQL一个存储引擎。">
+<meta property="og:description" content="JDK性能分析工具使用命令记录，备忘。">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2020-08-16T11:48:33.518Z">
+<meta property="og:updated_time" content="2020-09-02T12:53:15.467Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="MySQL存储引擎InnoDB相关知识">
-<meta name="twitter:description" content="InnoDB是MySQL一个存储引擎。">
+<meta name="twitter:title" content="JDK性能分析工具">
+<meta name="twitter:description" content="JDK性能分析工具使用命令记录，备忘。">
 
 
 
@@ -120,13 +119,13 @@
 
 
 
-  <link rel="canonical" href="http://wuare.github.io/2020/08/16/mysql-storage-engine-innodb/">
+  <link rel="canonical" href="http://wuare.github.io/2020/09/02/jdk-tools/">
 
 
 
 
 
-  <title>MySQL存储引擎InnoDB相关知识 | wuare</title>
+  <title>JDK性能分析工具 | wuare</title>
   
 
 
@@ -253,7 +252,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://wuare.github.io/2020/08/16/mysql-storage-engine-innodb/">
+    <link itemprop="mainEntityOfPage" href="http://wuare.github.io/2020/09/02/jdk-tools/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="wuare">
@@ -270,7 +269,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">MySQL存储引擎InnoDB相关知识</h1>
+          <h1 class="post-title" itemprop="name headline">JDK性能分析工具</h1>
         
 
         <div class="post-meta">
@@ -282,8 +281,8 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-08-16T14:21:21+08:00">
-                2020-08-16
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-09-02T20:16:51+08:00">
+                2020-09-02
               </time>
             
 
@@ -320,31 +319,25 @@
       
 
       
-        <p>InnoDB是MySQL一个存储引擎。<br><a id="more"></a><br>InnoDB优势：</p>
+        <p>JDK性能分析工具使用命令记录，备忘。<br><a id="more"></a></p>
+<h1 id="jstat"><a href="#jstat" class="headerlink" title="jstat"></a>jstat</h1><p>jstat可以查看堆内各个部分的使用量，以及加载类的数量<br>jstat -options可以列出当前JVM版本支持的选项，常见的有：</p>
 <ul>
-<li>支持事务</li>
-<li>行级锁</li>
-<li>没有表都有主键</li>
-<li>支持外键</li>
+<li>-class（类加载器）</li>
+<li>-compiler</li>
+<li>-gc（GC堆状态）</li>
+<li>-gccapacity（各区大小）</li>
+<li>-gccause（最近一次GC统计和原因）</li>
+<li>-gcmetacapacity（方法去大小）</li>
+<li>-gcnew（新区统计）</li>
+<li>-gcnewcapacity（新区大小）</li>
+<li>-gcold（老区统计）</li>
+<li>-gcoldcapacity（老区大小）</li>
+<li>-gcutil（GC统计汇总）</li>
+<li>-printcompilation（HotSpot编译统计）</li>
 </ul>
-<p>查看MySQL默认引擎：</p>
-<ul>
-<li>使用命令SHOW ENGINES;</li>
-<li>查询INFORMATION_SCHEMA.ENGINES表，SELECT * FROM INFORMATION_SCHEMA.ENGINES;</li>
-</ul>
-<p>创建InnoDB表<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> t1(a <span class="built_in">int</span>, b <span class="built_in">char</span>(<span class="number">20</span>), PRIMARY <span class="keyword">KEY</span>(a)) <span class="keyword">ENGINE</span>=<span class="keyword">InnoDB</span>;</span><br></pre></td></tr></table></figure></p>
-<p>如果默认存储引擎是InnoDB，则不需要ENGINE=InnoDB。</p>
-<h2 id="索引"><a href="#索引" class="headerlink" title="索引"></a>索引</h2><p>每个InnoDB表都有一个聚簇索引，通常主键即为聚簇索引。<br>如果创建表时没有定义主键，InnoDB将定位到的第一个非空的唯一索引作为聚簇索引。<br>如果表没有主键也没有合适的唯一索引，InnoDB内部会生成一个隐藏的名称为GEN_CLUST_INDEX聚簇索引，该索引包含了row ID值。<br>聚簇索引保存着行中所有的数据，普通索引值包含聚簇索引的值。</p>
-<h3 id="索引结构"><a href="#索引结构" class="headerlink" title="索引结构"></a>索引结构</h3><p>InnoDB索引使用的数据结构是B树，索引记录被存储到B树的叶子节点中，默认的索引页（节点）大小为16KB。</p>
-<h2 id="表空间"><a href="#表空间" class="headerlink" title="表空间"></a>表空间</h2><p>file-per-table表空间，该表空间包含表数据及索引，默认情况下，如果启用innodb_file_per_table参数，InnoDB创建的表将放到该表空间中，参数未启用，表将放到system表空间。<br>file-per-table表空间对应.ibd文件，名称为<code>[表名称].ibd</code>，如：test.t1，创建的ibd文件路径为mysql/data/test/t1.ibd</p>
-<p>undo表空间，该表空间包含undo日志</p>
-<h2 id="锁"><a href="#锁" class="headerlink" title="锁"></a>锁</h2><h3 id="共享锁shared-s-lock和排它-独占锁exclusive-x-lock"><a href="#共享锁shared-s-lock和排它-独占锁exclusive-x-lock" class="headerlink" title="共享锁shared(s) lock和排它/独占锁exclusive(x) lock"></a>共享锁shared(s) lock和排它/独占锁exclusive(x) lock</h3><p>InnoDB实现了标准的行级锁，其中有两种类型：共享锁shared(s) lock和排它/独占锁exclusive(x) lock<br>持有共享锁则允许读某行。<br>持有独占锁则允许更新或删除某行。<br>如果事务t1在行r上持有共享锁，事务t2对行r的请求处理如下：</p>
-<ul>
-<li>如果t2持有s锁，则可以访问。</li>
-<li>如果t2持有x锁，则不能访问。</li>
-</ul>
-<p>如果t1持有x锁，则t2不能访问行r，必须等待t1释放锁。</p>
-<h2 id="事务隔离级别"><a href="#事务隔离级别" class="headerlink" title="事务隔离级别"></a>事务隔离级别</h2><p>InnoDB提供了标准的四种隔离级别：READ_UNCOMMITED、READ_COMMITED、REPEATABLE_READ、SERIALIZABLE，默认隔离级别是REPEATABLE_READ。</p>
+<h2 id="jstat-class"><a href="#jstat-class" class="headerlink" title="jstat -class "></a>jstat -class <pid></pid></h2><p>显示加载class的数量，以及所占空间等信息。<br>显示列名    具体描述<br>Loaded        装载的类的数量<br>Bytes        装载类所占用的字节数<br>Unloaded    卸载的类的数量<br>Bytes        卸载类的字节数<br>Time        装载和卸载类所花费的时间<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">jstat -class 17484</span><br><span class="line"></span><br><span class="line">Loaded  Bytes  Unloaded  Bytes     Time</span><br><span class="line">   949  1799.7        0     0.0       0.75</span><br></pre></td></tr></table></figure></p>
+<h2 id="jstat-gc"><a href="#jstat-gc" class="headerlink" title="jstat -gc "></a>jstat -gc <pid></pid></h2><p>显示gc的信息，查看gc的次数及时间<br>显示列名    具体描述<br>S0C            年轻代中第一个survivor（幸存区）的容量 (字节)<br>S1C            年轻代中第二个survivor（幸存区）的容量 (字节)<br>S0U            年轻代中第一个survivor（幸存区）目前已使用空间 (字节)<br>S1U            年轻代中第二个survivor（幸存区）目前已使用空间 (字节)<br>EC            年轻代中Eden（伊甸园）的容量 (字节)<br>EU            年轻代中Eden（伊甸园）目前已使用空间 (字节)<br>OC            Old代的容量 (字节)<br>OU            Old代目前已使用空间 (字节)<br>MC            MetaSpace(持久代)的容量 (字节)<br>MU            MetaSpace(持久代)目前已使用空间 (字节)<br>YGC            从应用程序启动到采样时年轻代中gc次数<br>YGCT        从应用程序启动到采样时年轻代中gc所用时间(s)<br>FGC            从应用程序启动到采样时old代(全gc)gc次数<br>FGCT        从应用程序启动到采样时old代(全gc)gc所用时间(s)<br>GCT            从应用程序启动到采样时gc用的总时间(s)<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"> S0C    S1C    S0U    S1U      EC       EU        OC         OU       MC     MU    CCSC   CCSU   YGC     YGCT    FGC    FGCT     GCT</span><br><span class="line">5120.0 5120.0  0.0    0.0   32768.0  13136.0   86016.0      0.0     4480.0 775.8  384.0   76.4       0    0.000   0      0.000    0.000</span><br></pre></td></tr></table></figure></p>
+<h2 id="jstat-gccapacity"><a href="#jstat-gccapacity" class="headerlink" title="jstat -gccapacity "></a>jstat -gccapacity <pid></pid></h2><p>显示VM内存中三代（young，old，metaspace）对象的使用和占用大小<br>显示列名    具体描述<br>NGCMN        年轻代(young)中初始化(最小)的大小(字节)<br>NGCMX         年轻代(young)的最大容量 (字节)<br>NGC         年轻代(young)中当前的容量 (字节)<br>S0C           年轻代中第一个survivor（幸存区）的容量 (字节)<br>S1C           年轻代中第二个survivor（幸存区）的容量 (字节)<br>EC          年轻代中Eden（伊甸园）的容量 (字节)<br>OGCMN          old代中初始化(最小)的大小 (字节)<br>OGCMX       old代的最大容量(字节)<br>OGC            old代当前新生成的容量 (字节)<br>OC          Old代的容量 (字节)<br>PGCMN        perm代中初始化(最小)的大小 (字节)<br>PGCMX         perm代的最大容量 (字节)<br>PGC           perm代当前新生成的容量 (字节)<br>PC             Perm(持久代)的容量 (字节)<br>YGC            从应用程序启动到采样时年轻代中gc次数<br>FGC            从应用程序启动到采样时old代(全gc)gc次数</p>
 
       
     </div>
@@ -360,14 +353,6 @@
 
     <footer class="post-footer">
       
-        <div class="post-tags">
-          
-            <a href="/tags/MySQL/" rel="tag"># MySQL</a>
-          
-            <a href="/tags/InnoDB/" rel="tag"># InnoDB</a>
-          
-        </div>
-      
 
       
       
@@ -377,8 +362,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2020/07/12/compiler-lexer-re-convert-dfa/" rel="next" title="编译原理-正则表达式转换为DFA">
-                <i class="fa fa-chevron-left"></i> 编译原理-正则表达式转换为DFA
+              <a href="/2020/08/28/spring-aop/" rel="next" title="Spring AOP学习">
+                <i class="fa fa-chevron-left"></i> Spring AOP学习
               </a>
             
           </div>
@@ -386,10 +371,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2020/08/26/netty-thread/" rel="prev" title="Netty线程">
-                Netty线程 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -512,7 +493,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#索引"><span class="nav-number">1.</span> <span class="nav-text">索引</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#索引结构"><span class="nav-number">1.1.</span> <span class="nav-text">索引结构</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#表空间"><span class="nav-number">2.</span> <span class="nav-text">表空间</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#锁"><span class="nav-number">3.</span> <span class="nav-text">锁</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#共享锁shared-s-lock和排它-独占锁exclusive-x-lock"><span class="nav-number">3.1.</span> <span class="nav-text">共享锁shared(s) lock和排它/独占锁exclusive(x) lock</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#事务隔离级别"><span class="nav-number">4.</span> <span class="nav-text">事务隔离级别</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#jstat"><span class="nav-number">1.</span> <span class="nav-text">jstat</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#jstat-class"><span class="nav-number">1.1.</span> <span class="nav-text">jstat -class </span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#jstat-gc"><span class="nav-number">1.2.</span> <span class="nav-text">jstat -gc </span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#jstat-gccapacity"><span class="nav-number">1.3.</span> <span class="nav-text">jstat -gccapacity </span></a></li></ol></li></ol></div>
             
 
           </div>
