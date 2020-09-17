@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="Netty,">
+  <meta name="keywords" content="MySQL,">
 
 
 
@@ -79,18 +79,18 @@
 
 
 
-<meta name="description" content="Netty线程组NioEventLoopGroup，里面包含多个子线程，子线程实现为NioEventLoop。">
-<meta name="keywords" content="Netty">
+<meta name="description" content="explain执行计划explain可以输出SQL语句执行的信息，常用的语法格式为EXPLAIN SELECT statement">
+<meta name="keywords" content="MySQL">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Netty线程">
-<meta property="og:url" content="http://wuare.github.io/2020/08/26/netty-thread/index.html">
+<meta property="og:title" content="MySQL优化-EXPLAIN详解">
+<meta property="og:url" content="http://wuare.github.io/2020/09/05/mysql-optimization/index.html">
 <meta property="og:site_name" content="wuare">
-<meta property="og:description" content="Netty线程组NioEventLoopGroup，里面包含多个子线程，子线程实现为NioEventLoop。">
+<meta property="og:description" content="explain执行计划explain可以输出SQL语句执行的信息，常用的语法格式为EXPLAIN SELECT statement">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2020-08-27T09:17:25.455Z">
+<meta property="og:updated_time" content="2020-09-05T04:53:25.384Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Netty线程">
-<meta name="twitter:description" content="Netty线程组NioEventLoopGroup，里面包含多个子线程，子线程实现为NioEventLoop。">
+<meta name="twitter:title" content="MySQL优化-EXPLAIN详解">
+<meta name="twitter:description" content="explain执行计划explain可以输出SQL语句执行的信息，常用的语法格式为EXPLAIN SELECT statement">
 
 
 
@@ -120,13 +120,13 @@
 
 
 
-  <link rel="canonical" href="http://wuare.github.io/2020/08/26/netty-thread/">
+  <link rel="canonical" href="http://wuare.github.io/2020/09/05/mysql-optimization/">
 
 
 
 
 
-  <title>Netty线程 | wuare</title>
+  <title>MySQL优化-EXPLAIN详解 | wuare</title>
   
 
 
@@ -253,7 +253,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://wuare.github.io/2020/08/26/netty-thread/">
+    <link itemprop="mainEntityOfPage" href="http://wuare.github.io/2020/09/05/mysql-optimization/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="wuare">
@@ -270,7 +270,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">Netty线程</h1>
+          <h1 class="post-title" itemprop="name headline">MySQL优化-EXPLAIN详解</h1>
         
 
         <div class="post-meta">
@@ -282,8 +282,8 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-08-26T21:10:21+08:00">
-                2020-08-26
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-09-05T12:00:24+08:00">
+                2020-09-05
               </time>
             
 
@@ -320,7 +320,29 @@
       
 
       
-        <p>Netty线程组NioEventLoopGroup，里面包含多个子线程，子线程实现为NioEventLoop。<br><a id="more"></a></p>
+        <h1 id="explain执行计划"><a href="#explain执行计划" class="headerlink" title="explain执行计划"></a>explain执行计划</h1><p>explain可以输出SQL语句执行的信息，常用的语法格式为<code>EXPLAIN SELECT statement</code><br><a id="more"></a><br>explain输出列如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">id					标识号</span><br><span class="line">select_type			查询类型</span><br><span class="line">table				表名称</span><br><span class="line">partitions			匹配的分区</span><br><span class="line">type				连接类型</span><br><span class="line">possible_keys		可能/可以用到的索引</span><br><span class="line">key					实际选择的索引</span><br><span class="line">key_len				选择的索引的长度</span><br><span class="line">ref					</span><br><span class="line">rows				找到记录需要读取的行数的估计值</span><br><span class="line">extra				额外的信息</span><br></pre></td></tr></table></figure></p>
+<h2 id="id"><a href="#id" class="headerlink" title="id"></a>id</h2><p>查询标识，是一个有序的数字。</p>
+<h2 id="select-type"><a href="#select-type" class="headerlink" title="select_type"></a>select_type</h2><p>查询类型，值包含以下几种</p>
+<ul>
+<li>SIMPLE 语句没有用union和子查询</li>
+<li>PRIMARY 最外层的查询</li>
+<li>UNION union语句中的第二个查询</li>
+<li>DEPENDENT UNION union语句中的第二个查询，依赖外层查询</li>
+<li>UNION RESULT union语句查询结果</li>
+<li>SUBQUERY select语句中的第一个子查询</li>
+<li>DEPENDENT SUBQUERY select语句中的第一个子查询，依赖外层查询</li>
+<li>DERIVED 派生表</li>
+<li>DEPENDENT DERIVED 派生表，依赖另一个表</li>
+<li>MATERIALIZED 物化子查询</li>
+<li>UNCACHEABLE SUBQUERY 子查询的结果不能被缓存，外部查询每一行需要重新计算</li>
+<li>UNCACHEABLE UNION 不可缓存的union语句中的第二个查询</li>
+</ul>
+<h2 id="type"><a href="#type" class="headerlink" title="type"></a>type</h2><p>描述表时如何被连接的，以下按由好到坏列出各个值</p>
+<ul>
+<li>system 表中只有一行</li>
+<li>const 表中最多有一个匹配行，如果将一个主键放置到where后面作为条件查询，mysql优化器就能把这次查询优化转化为一个常量</li>
+<li>eq_ref 表中的某行数据读取需要循环前面表中的行，它用在一个索引的所有部分被连接使用并且索引是UNIQUE或PRIMARY KEY</li>
+</ul>
 
       
     </div>
@@ -338,7 +360,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/Netty/" rel="tag"># Netty</a>
+            <a href="/tags/MySQL/" rel="tag"># MySQL</a>
           
         </div>
       
@@ -351,8 +373,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2020/08/16/mysql-storage-engine-innodb/" rel="next" title="MySQL存储引擎InnoDB相关知识">
-                <i class="fa fa-chevron-left"></i> MySQL存储引擎InnoDB相关知识
+              <a href="/2020/09/02/jdk-tools/" rel="next" title="JDK性能分析工具">
+                <i class="fa fa-chevron-left"></i> JDK性能分析工具
               </a>
             
           </div>
@@ -361,8 +383,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2020/08/28/spring-aop/" rel="prev" title="Spring AOP学习">
-                Spring AOP学习 <i class="fa fa-chevron-right"></i>
+              <a href="/2020/09/17/binarytree-traversal/" rel="prev" title="二叉树遍历">
+                二叉树遍历 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -415,8 +437,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -467,6 +498,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#explain执行计划"><span class="nav-number">1.</span> <span class="nav-text">explain执行计划</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#id"><span class="nav-number">1.1.</span> <span class="nav-text">id</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#select-type"><span class="nav-number">1.2.</span> <span class="nav-text">select_type</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#type"><span class="nav-number">1.3.</span> <span class="nav-text">type</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
