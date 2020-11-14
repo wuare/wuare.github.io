@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="Java,">
+  <meta name="keywords" content="Hexo, NexT">
 
 
 
@@ -79,18 +79,17 @@
 
 
 
-<meta name="description" content="Java AQS源码阅读疑问">
-<meta name="keywords" content="Java">
+<meta name="description" content="创建Index并且插入添加document">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Java AQS疑问">
-<meta property="og:url" content="http://wuare.github.io/2019/04/24/java-lock/index.html">
+<meta property="og:title" content="es基础">
+<meta property="og:url" content="http://wuare.github.io/2020/11/14/es_basic_syntax/index.html">
 <meta property="og:site_name" content="wuare">
-<meta property="og:description" content="Java AQS源码阅读疑问">
+<meta property="og:description" content="创建Index并且插入添加document">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2019-04-24T13:49:34.272Z">
+<meta property="og:updated_time" content="2020-11-14T06:37:28.338Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Java AQS疑问">
-<meta name="twitter:description" content="Java AQS源码阅读疑问">
+<meta name="twitter:title" content="es基础">
+<meta name="twitter:description" content="创建Index并且插入添加document">
 
 
 
@@ -120,13 +119,13 @@
 
 
 
-  <link rel="canonical" href="http://wuare.github.io/2019/04/24/java-lock/">
+  <link rel="canonical" href="http://wuare.github.io/2020/11/14/es_basic_syntax/">
 
 
 
 
 
-  <title>Java AQS疑问 | wuare</title>
+  <title>es基础 | wuare</title>
   
 
 
@@ -253,7 +252,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://wuare.github.io/2019/04/24/java-lock/">
+    <link itemprop="mainEntityOfPage" href="http://wuare.github.io/2020/11/14/es_basic_syntax/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="wuare">
@@ -270,7 +269,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">Java AQS疑问</h1>
+          <h1 class="post-title" itemprop="name headline">es基础</h1>
         
 
         <div class="post-meta">
@@ -282,8 +281,8 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-04-24T21:39:03+08:00">
-                2019-04-24
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-11-14T19:11:48+08:00">
+                2020-11-14
               </time>
             
 
@@ -320,10 +319,15 @@
       
 
       
-        <p>Java AQS源码阅读疑问<br><a id="more"></a><br>学习Java锁（Lock），阅读AQS源码一直有个疑问，如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">final</span> <span class="keyword">boolean</span> <span class="title">acquireQueued</span><span class="params">(<span class="keyword">final</span> Node node, <span class="keyword">int</span> arg)</span> </span>&#123;</span><br><span class="line">	<span class="keyword">boolean</span> failed = <span class="keyword">true</span>;</span><br><span class="line">	<span class="keyword">try</span> &#123;</span><br><span class="line">		<span class="keyword">boolean</span> interrupted = <span class="keyword">false</span>;</span><br><span class="line">		<span class="keyword">for</span> (;;) &#123;</span><br><span class="line">			<span class="keyword">final</span> Node p = node.predecessor();</span><br><span class="line">			<span class="keyword">if</span> (p == head &amp;&amp; tryAcquire(arg)) &#123;</span><br><span class="line">				setHead(node);</span><br><span class="line">				p.next = <span class="keyword">null</span>; <span class="comment">// help GC</span></span><br><span class="line">				failed = <span class="keyword">false</span>;</span><br><span class="line">				<span class="keyword">return</span> interrupted;</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">if</span> (shouldParkAfterFailedAcquire(p, node) &amp;&amp;</span><br><span class="line">				parkAndCheckInterrupt())</span><br><span class="line">				interrupted = <span class="keyword">true</span>;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">		<span class="keyword">if</span> (failed)</span><br><span class="line">			cancelAcquire(node);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// release方法中unparkSuccessor方法代码</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">unparkSuccessor</span><span class="params">(Node node)</span> </span>&#123;</span><br><span class="line">	<span class="keyword">int</span> ws = node.waitStatus;</span><br><span class="line">	<span class="keyword">if</span> (ws &lt; <span class="number">0</span>)</span><br><span class="line">		compareAndSetWaitStatus(node, ws, <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">	Node s = node.next;</span><br><span class="line">	<span class="keyword">if</span> (s == <span class="keyword">null</span> || s.waitStatus &gt; <span class="number">0</span>) &#123;</span><br><span class="line">		s = <span class="keyword">null</span>;</span><br><span class="line">		<span class="keyword">for</span> (Node t = tail; t != <span class="keyword">null</span> &amp;&amp; t != node; t = t.prev)</span><br><span class="line">			<span class="keyword">if</span> (t.waitStatus &lt;= <span class="number">0</span>)</span><br><span class="line">				s = t;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> (s != <span class="keyword">null</span>)</span><br><span class="line">		LockSupport.unpark(s.thread);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>如果第一个线程获得了锁，第二个线程执行以上方法添加到队列里阻塞自己，但是当第二个线程执行到<code>shouldParkAfterFailedAcquire()</code>该方法时，返回true，在执行<code>parkAndCheckInterrupt()</code>阻塞自己之前，cpu时间片切换，第一个线程执行<code>release()</code>方法，以上代码中<code>Node s = node.next</code>为第二个线程的节点，执行<code>LockSupport.unpark(s.thread)</code>操作第二个线程，然后cpu时间片再次切换，第二个线程调用<code>parkAndCheckInterrupt()</code>阻塞自己，这样第二个线程会一直阻塞下去吗？</p>
-<p>后来试了下发现，如果一个线程先调用<code>LockSupport.unpark</code>方法，然后调用<code>LockSupport.park</code>是阻塞不了的。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// main方法测试</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">	LockSupport.unpark(Thread.currentThread());</span><br><span class="line">	LockSupport.park();</span><br><span class="line">	System.out.println(<span class="number">1</span>); <span class="comment">// 不阻塞，输出1</span></span><br><span class="line">	LockSupport.park();</span><br><span class="line">	System.out.println(<span class="number">2</span>); <span class="comment">// 阻塞，不输出</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>由于水平有限，本文有错误请在<a href="https://github.com/wuare/wuare.github.io/issues" target="_blank" rel="noopener">Github Issue</a>区留言指正。</p>
+        <p>创建Index并且插入添加document<br><a id="more"></a><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">PUT /customer/_doc/1</span><br><span class="line">&#123;&quot;name&quot;: &quot;John Doe&quot;&#125;</span><br></pre></td></tr></table></figure></p>
+<p>检索document id<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GET /customer/_doc/1</span><br></pre></td></tr></table></figure></p>
+<p>查询<br>访问<code>_search</code><br>eg: 检索<code>bank</code>Index中的所有document，并且按照<code>account_number</code>排序<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">GET /bank/_search</span><br><span class="line">&#123;</span><br><span class="line">	&quot;query&quot;: &#123;&quot;match_all&quot;:&#123;&#125;&#125;,</span><br><span class="line">	&quot;sort&quot;:[</span><br><span class="line">		&#123;&quot;account_number&quot;:&quot;asc&quot;&#125;</span><br><span class="line">	]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>默认情况下以上查询返回前10条数据。<br>返回结果字段说明<br>took：es执行查询耗时，单位毫秒<br>time_out：是否超时<br>_shards：多少分片被搜索<br>hits.total.value：匹配的document数量</p>
+<p>分页使用<code>from</code>，<code>size</code><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">GET /bank/_search</span><br><span class="line">&#123;</span><br><span class="line">	&quot;query&quot;: &#123;&quot;match_all&quot;:&#123;&#125;&#125;,</span><br><span class="line">	&quot;sort&quot;:[</span><br><span class="line">		&#123;&quot;account_number&quot;:&quot;asc&quot;&#125;</span><br><span class="line">	],</span><br><span class="line">	&quot;from&quot;:10,</span><br><span class="line">	&quot;size&quot;:10</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>查询某个字段中包含某个词，用match<br>下面语句会查询address包含mill或者lane的记录<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">GET /bank/_search</span><br><span class="line">&#123;</span><br><span class="line">  &quot;query&quot;: &#123; &quot;match&quot;: &#123; &quot;address&quot;: &quot;mill lane&quot; &#125; &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>如果要查询的是短语，而不是分开的单词，则使用match_phrase</p>
+<p>更复杂的查询使用bool<br>bool查询中must表示必须匹配，must_not表示必须不匹配<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">GET /bank/_search</span><br><span class="line">&#123;</span><br><span class="line">  &quot;query&quot;: &#123;</span><br><span class="line">    &quot;bool&quot;: &#123;</span><br><span class="line">      &quot;must&quot;: [</span><br><span class="line">        &#123; &quot;match&quot;: &#123; &quot;age&quot;: &quot;40&quot; &#125; &#125;</span><br><span class="line">      ],</span><br><span class="line">      &quot;must_not&quot;: [</span><br><span class="line">        &#123; &quot;match&quot;: &#123; &quot;state&quot;: &quot;ID&quot; &#125; &#125;</span><br><span class="line">      ]</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>aggs聚合查询</p>
 
       
     </div>
@@ -339,12 +343,6 @@
 
     <footer class="post-footer">
       
-        <div class="post-tags">
-          
-            <a href="/tags/Java/" rel="tag"># Java</a>
-          
-        </div>
-      
 
       
       
@@ -354,8 +352,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2019/04/23/learn-shell/" rel="next" title="Shell脚本简单知识">
-                <i class="fa fa-chevron-left"></i> Shell脚本简单知识
+              <a href="/2020/09/17/binarytree-traversal/" rel="next" title="二叉树遍历">
+                <i class="fa fa-chevron-left"></i> 二叉树遍历
               </a>
             
           </div>
@@ -364,8 +362,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2020/07/12/compiler-lexer-re-convert-dfa/" rel="prev" title="编译原理-正则表达式转换为DFA">
-                编译原理-正则表达式转换为DFA <i class="fa fa-chevron-right"></i>
+              <a href="/2020/11/14/go-syntax/" rel="prev" title="go语法学习">
+                go语法学习 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
