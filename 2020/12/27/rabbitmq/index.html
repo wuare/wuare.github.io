@@ -79,14 +79,17 @@
 
 
 
-<meta property="og:type" content="website">
-<meta property="og:title" content="标签">
-<meta property="og:url" content="http://wuare.github.io/tags/index.html">
+<meta name="description" content="RabbitMQ基本概念Message,Publisher,Exchange,Binding,Queue,Channel,Consumer,Virtual Host">
+<meta property="og:type" content="article">
+<meta property="og:title" content="wuare">
+<meta property="og:url" content="http://wuare.github.io/2020/12/27/rabbitmq/index.html">
 <meta property="og:site_name" content="wuare">
+<meta property="og:description" content="RabbitMQ基本概念Message,Publisher,Exchange,Binding,Queue,Channel,Consumer,Virtual Host">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2019-03-30T04:54:09.829Z">
+<meta property="og:updated_time" content="2020-12-27T10:29:52.565Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="标签">
+<meta name="twitter:title" content="wuare">
+<meta name="twitter:description" content="RabbitMQ基本概念Message,Publisher,Exchange,Binding,Queue,Channel,Consumer,Virtual Host">
 
 
 
@@ -116,13 +119,13 @@
 
 
 
-  <link rel="canonical" href="http://wuare.github.io/tags/">
+  <link rel="canonical" href="http://wuare.github.io/2020/12/27/rabbitmq/">
 
 
 
 
 
-  <title>标签 | wuare</title>
+  <title> | wuare</title>
   
 
 
@@ -237,40 +240,143 @@
 
   <div id="posts" class="posts-expand">
     
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://wuare.github.io/2020/12/27/rabbitmq/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="wuare">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="wuare">
+    </span>
+
     
-    
-    <div class="post-block page">
       <header class="post-header">
 
-	<h1 class="post-title" itemprop="name headline">标签</h1>
-
-
-
-</header>
-
-      
-      
-      
-      <div class="post-body">
         
         
-          <div class="tag-cloud">
-            <div class="tag-cloud-title">
-                11 tags in total
-            </div>
-            <div class="tag-cloud-tags">
-              <a href="/tags/InnoDB/" style="font-size: 12px; color: #ccc">InnoDB</a> <a href="/tags/Java/" style="font-size: 12px; color: #ccc">Java</a> <a href="/tags/MySQL/" style="font-size: 30px; color: #111">MySQL</a> <a href="/tags/Netty/" style="font-size: 12px; color: #ccc">Netty</a> <a href="/tags/Redis/" style="font-size: 12px; color: #ccc">Redis</a> <a href="/tags/Shell/" style="font-size: 12px; color: #ccc">Shell</a> <a href="/tags/Spring/" style="font-size: 12px; color: #ccc">Spring</a> <a href="/tags/Zookeeper/" style="font-size: 12px; color: #ccc">Zookeeper</a> <a href="/tags/distributed-locks/" style="font-size: 12px; color: #ccc">distributed locks</a> <a href="/tags/数据结构/" style="font-size: 12px; color: #ccc">数据结构</a> <a href="/tags/编译原理/" style="font-size: 12px; color: #ccc">编译原理</a>
-            </div>
-          </div>
+          <h1 class="post-title" itemprop="name headline"></h1>
         
-      </div>
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-12-27T18:29:13+08:00">
+                2020-12-27
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
       
       
+
+      
+        <p>RabbitMQ基本概念<br>Message,Publisher,Exchange,Binding,Queue,Channel,Consumer,Virtual Host<br><a id="more"></a></p>
+<p>Message：消息<br>Publisher：消息生产者，将消息推送到Exchange，消费者从Queue中获取<br>Exchange：交换器，用来接收生产者的消息并将这些消息路由给服务器中的队列<br>Binding：绑定，用于给Exchange和Queue建立关系，从而决定将这个交换器中的哪些消息，发送到对应的Queue<br>Queue：消息队列，用来保存消息知道发送给消费者<br>Consumer：消费者<br>Virtual Host：虚拟主机，表示一批交换器、消息队列和相关对象</p>
+<p>Exchange支持的四种策略<br>Direct策略<br>消息中的路由键（routing key）如果和Binding中的binding key一致，交换器就将消息发送到对应的队列中<br>eg：Exchange 和两个队列绑定在一起<br>Q1 的 bindingkey 是 orange<br>Q2 的 binding key 是 black 和 green.<br>当 Producer 发布一个消息，其routing key是orange时, exchange 会把它放到 Q1 上, 如果是black或green就会到 Q2 上, 其余的 Message 被丢弃</p>
+<p>Topic策略<br>通过routing key与 bingding key的模式匹配方式来分发消息<br>简单来讲，直接策略是完全精确匹配，而topic则支持正则匹配，满足某类指定规则的（如以 xxx 开头的路由键），可以将消息分发过去<br><code>#</code> 匹配 0 个或多个单词<br><code>*</code> 匹配不多不少一个单词<br>eg：<br>Producer发送消息时需要设置routing_key,<br>Q1 的 binding key 是<em>.orange.</em><br>Q2 是 <em>.</em>.rabbit 和 lazy.#：<br>发布一个routing key为test.orange.mm 消息，则会路由到 Q1；<br>注意： 如果是routng key是 test.orange则无法路由到 Q1，<br>因为 Q1 的规则是三个单词，中间一个为 orange，不满足这个规则的都无效<br>发布一个routing key为test.qq.rabbit或者lazy.qq的消息 都可以分发到 Q2；即路由 key 为三个单词，最后一个为 rabbit 或者不限制单词个数，主要第一个是 lazy 的消息，都可以分发过来<br>如果发布的是一个test.orange.rabbit消息，则 Q1 和 Q2 都可以满足<br>注意： 这时两个队列都会接受到这个消息</p>
+<p>Fanout策略<br>广播策略，忽略routing key 和 binding key，将消息分发给所有绑定在这个 exchange 上的 queue</p>
+<p>Headers策略<br>根据 Message 的一些头部信息来分发过滤 Message，忽略 routing key 的属性，如果 Header 信息和 message 消息的头信息相匹配</p>
+
       
     </div>
     
     
     
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/11/14/es_basic_syntax/" rel="next" title="es基础">
+                <i class="fa fa-chevron-left"></i> es基础
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
   </div>
 
 
